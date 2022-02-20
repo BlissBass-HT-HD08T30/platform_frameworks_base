@@ -44,6 +44,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Process;
+import android.os.SystemProperties;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -446,6 +447,10 @@ public class PackageInstallerActivity extends AlertActivity {
      * show the appropriate dialog.
      */
     private void checkIfAllowedAndInitiateInstall() {
+        if (SystemProperties.get("ro.boot.bliss.bootmode").equals("lockdown")) {
+            showDialogInner(DLG_UNKNOWN_SOURCES_RESTRICTED_FOR_USER);
+            return;
+        }
         // Check for install apps user restriction first.
         final int installAppsRestrictionSource = mUserManager.getUserRestrictionSource(
                 UserManager.DISALLOW_INSTALL_APPS, Process.myUserHandle());
