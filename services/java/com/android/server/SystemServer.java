@@ -232,6 +232,7 @@ import com.android.server.custom.LineageHardwareService;
 import com.android.server.custom.display.LiveDisplayService;
 
 import org.blissos.server.ethernet.BlissEthernetService;
+import org.blissos.server.powermanager.BlissPowerService;
 
 /**
  * Entry point to {@code system_server}.
@@ -2711,6 +2712,10 @@ public final class SystemServer implements Dumpable {
 
         t.traceBegin("BlissEthernetService");
         mSystemServiceManager.startService(BlissEthernetService.class);
+        t.traceEnd();
+
+        t.traceBegin("BlissPowerService");
+        mSystemServiceManager.startService(BlissPowerService.class);
         t.traceEnd();
 
         // These are needed to propagate to the runnable below.

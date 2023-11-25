@@ -170,6 +170,7 @@ java_library_static {
         "kotlinx-coroutines-core",
         "faceunlock_framework",
         "bliss-ethernet-framework",
+        "bliss-power-framework",
     ],
     javac_shard_size: 50,
 }
