@@ -165,6 +165,16 @@ public class BlissEthernetService extends SystemService {
 
         @Override
         public void setIpAssignment(String iface, int assignment) throws RemoteException {
+            if (iface == null || iface.isEmpty())
+                return;
+
+            int currentAssignment = getIpAssignment(iface);
+            String ipAddress = getIpAddress(iface);
+            String gateway = getGateway(iface);
+            String[] dnses = getDnses(iface);
+            if (currentAssignment == assignment)
+                return;
+
             long token = clearCallingIdentity();
 
             IpConfiguration ipconfig = mEthernetManager.getConfiguration(iface);
@@ -180,11 +190,18 @@ public class BlissEthernetService extends SystemService {
             }
             mEthernetManager.setConfiguration(iface, ipconfig);
             restoreCallingIdentity(token);
+            if (assignment == 1) {
+                setIpAddress(iface, ipAddress);
+                setGateway(iface, gateway);
+                setDnses(iface, dnses);
+            }
         }
 
         @Override
         public String getIpAddress(String iface) throws RemoteException {
             long token = clearCallingIdentity();
+            if (iface == null || iface.isEmpty())
+                return null;
 
             IpConfiguration ipconfig = mEthernetManager.getConfiguration(iface);
             StaticIpConfiguration staticIpconfig = ipconfig.getStaticIpConfiguration();
@@ -216,6 +233,8 @@ public class BlissEthernetService extends SystemService {
         @Override
         public void setIpAddress(String iface, String ipAddress) throws RemoteException {
             long token = clearCallingIdentity();
+            if (iface == null || iface.isEmpty() || ipAddress == null || ipAddress.isEmpty())
+                return;
 
             IpConfiguration ipconfig = mEthernetManager.getConfiguration(iface);
             StaticIpConfiguration staticIpconfig = ipconfig.getStaticIpConfiguration();
@@ -255,6 +274,8 @@ public class BlissEthernetService extends SystemService {
         @Override
         public String getGateway(String iface) throws RemoteException {
             long token = clearCallingIdentity();
+            if (iface == null || iface.isEmpty())
+                return null;
 
             IpConfiguration ipconfig = mEthernetManager.getConfiguration(iface);
             StaticIpConfiguration staticIpconfig = ipconfig.getStaticIpConfiguration();
@@ -285,6 +306,8 @@ public class BlissEthernetService extends SystemService {
         @Override
         public void setGateway(String iface, String gateway) throws RemoteException {
             long token = clearCallingIdentity();
+            if (iface == null || iface.isEmpty() || gateway == null || gateway.isEmpty())
+                return;
 
             IpConfiguration ipconfig = mEthernetManager.getConfiguration(iface);
             StaticIpConfiguration staticIpconfig = ipconfig.getStaticIpConfiguration();
@@ -301,7 +324,13 @@ public class BlissEthernetService extends SystemService {
                     staticIpConfigBuilder.setDnsServers(lp.getDnsServers());
                 }
             }
-            staticIpConfigBuilder.setGateway(InetAddresses.parseNumericAddress(gateway));
+            try {
+                staticIpConfigBuilder.setGateway(InetAddresses.parseNumericAddress(gateway));
+            } catch (Exception e) {
+                Log.e(TAG, "setGateway: " + e);
+                restoreCallingIdentity(token);
+                return;
+            }
 
             ipconfig.setStaticIpConfiguration(staticIpConfigBuilder.build());
             ipconfig.setIpAssignment(IpConfiguration.IpAssignment.STATIC);
@@ -312,6 +341,8 @@ public class BlissEthernetService extends SystemService {
         @Override
         public String[] getDnses(String iface) throws RemoteException {
             long token = clearCallingIdentity();
+            if (iface == null || iface.isEmpty())
+                return new String[0];
 
             IpConfiguration ipconfig = mEthernetManager.getConfiguration(iface);
             StaticIpConfiguration staticIpconfig = ipconfig.getStaticIpConfiguration();
@@ -348,6 +379,8 @@ public class BlissEthernetService extends SystemService {
         @Override
         public void setDnses(String iface, String[] dnses) throws RemoteException {
             long token = clearCallingIdentity();
+            if (iface == null || iface.isEmpty() || dnses == null || dnses.length < 1)
+                return;
 
             IpConfiguration ipconfig = mEthernetManager.getConfiguration(iface);
             StaticIpConfiguration staticIpconfig = ipconfig.getStaticIpConfiguration();
@@ -361,16 +394,20 @@ public class BlissEthernetService extends SystemService {
                 final LinkProperties lp = getInterfaceLinkProperties(iface);
                 if (lp != null) {
                     staticIpConfigBuilder.setIpAddress(lp.getLinkAddresses().get(0));
-                    final RouteInfo ri = (lp != null)
-                            ? NetUtils.selectBestRoute(lp.getAllRoutes(), INADDR_ANY)
-                            : null;
+                    final RouteInfo ri = NetUtils.selectBestRoute(lp.getAllRoutes(), INADDR_ANY);
                     if (ri != null)
                         staticIpConfigBuilder.setGateway(ri.getGateway());
                 }
             }
             ArrayList<InetAddress> dnsAddresses = new ArrayList<>();
             for (String address: dnses) {
-                dnsAddresses.add(InetAddresses.parseNumericAddress(address));
+                try {
+                    dnsAddresses.add(InetAddresses.parseNumericAddress(address));
+                } catch (Exception e) {
+                    Log.e(TAG, "addDNS: " + e);
+                    restoreCallingIdentity(token);
+                    return;
+                }
             }
             staticIpConfigBuilder.setDnsServers(dnsAddresses);
 
