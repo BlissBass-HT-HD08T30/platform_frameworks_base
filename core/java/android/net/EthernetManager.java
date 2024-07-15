@@ -315,4 +315,17 @@ public class EthernetManager {
         }
         return new TetheredInterfaceRequest(mService, cbInternal);
     }
+
+    /**
+     * Get Ethernet LinkProperties.
+     * @return the Ethernet LinkProperties, contained in {@link LinkProperties}.
+     * @hide
+     */
+    public LinkProperties getLinkProperties(String iface) {
+        try {
+            return mService.getLinkProperties(iface);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
 }

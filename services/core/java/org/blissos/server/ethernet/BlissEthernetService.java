@@ -79,7 +79,7 @@ public class BlissEthernetService extends SystemService {
                 return mCM.getLinkProperties(network);
             }
         }
-        return null;
+        return mEthernetManager.getLinkProperties(iface);
     }
 
     private final IBlissEthernet.Stub mService = new IBlissEthernet.Stub() {

@@ -19,6 +19,7 @@ package android.net;
 import android.net.IpConfiguration;
 import android.net.IEthernetServiceListener;
 import android.net.ITetheredInterfaceCallback;
+import android.net.LinkProperties;
 
 /**
  * Interface that answers queries about, and allows changing
@@ -36,4 +37,5 @@ interface IEthernetManager
     void setIncludeTestInterfaces(boolean include);
     void requestTetheredInterface(in ITetheredInterfaceCallback callback);
     void releaseTetheredInterface(in ITetheredInterfaceCallback callback);
+    LinkProperties getLinkProperties(String iface);
 }
