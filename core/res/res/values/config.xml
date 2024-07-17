@@ -3014,6 +3014,7 @@
          "emergency" = Launch emergency dialer
          "lockdown" = Lock down device until the user authenticates
          "logout" =  Logout the current user
+         "testing" =  Launch the lockdown testing app
          -->
     <string-array translatable="false" name="config_globalActionsList">
         <item>emergency</item>
@@ -3021,6 +3022,7 @@
         <item>power</item>
         <item>restart</item>
         <item>sleep</item>
+        <item>testing</item>
         <item>logout</item>
         <item>bugreport</item>
     </string-array>

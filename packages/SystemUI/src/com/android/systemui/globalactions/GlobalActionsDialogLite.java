@@ -187,6 +187,10 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
     private static final String GLOBAL_ACTION_KEY_ONTHEGO = "onthego";
     static final String GLOBAL_ACTION_KEY_DEVICECONTROLS = "devicecontrols";
     static final String GLOBAL_ACTION_KEY_SLEEP = "sleep";
+    public static final String GLOBAL_ACTION_KEY_TESTING = "testing";
+    public static final String TESTING_PACKAGE = "org.blissos.lockdown.settings";
+    public static final String TESTING_ACTIVITY = "org.blissos.lockdown.settings.MainActivity";
+    public static final String TESTING_SETTINGS = "org.blissos.lockdown.settings.MainActivity";
 
     // See NotificationManagerService#scheduleDurationReachedLocked
     private static final long TOAST_FADE_TIME = 333;
@@ -715,7 +719,13 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             } else if (GLOBAL_ACTION_KEY_SLEEP.equals(actionKey)) {
                 if (Settings.System.getInt(mContext.getContentResolver(),
                         Settings.System.POWERMENU_SLEEP, 1) == 1) {
-				addIfShouldShowAction(tempActions, new SleepAction()); }
+				addIfShouldShowAction(tempActions, new SleepAction()); 
+                }
+            } else if (GLOBAL_ACTION_KEY_TESTING.equals(actionKey)) {
+                if (Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.POWERMENU_TESTING, 1) == 1) {
+                    addIfShouldShowAction(tempActions, new TestingAction());
+                }
             } else if (GLOBAL_ACTION_KEY_ADVANCED_RESTART.equals(actionKey)) {
                 if (Settings.System.getInt(mContext.getContentResolver(),
                         Settings.System.POWERMENU_ADVANCED, 1) == 1) {
@@ -973,7 +983,49 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
             mPowerManager.goToSleep(SystemClock.uptimeMillis(), PowerManager.GO_TO_SLEEP_REASON_SLEEP_BUTTON,
                                                                 PowerManager.GO_TO_SLEEP_FLAG_NO_DOZE );
         } 
-    } 
+    }
+
+    private final class TestingAction extends SinglePressAction implements LongPressAction  {
+        private TestingAction() {
+            super(com.android.systemui.R.drawable.ic_testing,
+                    com.android.systemui.R.string.global_action_testing);
+        }
+
+        @Override
+        public boolean showDuringKeyguard() {
+            return false;
+        }
+
+        @Override
+        public boolean showBeforeProvisioning() {
+            return false;
+        }
+
+        @Override
+        public void onPress() {
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName(TESTING_PACKAGE, TESTING_ACTIVITY));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            if (mContext.getPackageManager().resolveActivity(intent,
+                    PackageManager.MATCH_SYSTEM_ONLY) != null) {
+                mContext.startActivity(intent);
+            }
+        }
+
+        @Override
+        public boolean onLongPress() {
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName(TESTING_PACKAGE, TESTING_SETTINGS));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            if (mContext.getPackageManager().resolveActivity(intent,
+                    PackageManager.MATCH_SYSTEM_ONLY) != null) {
+                mContext.startActivity(intent);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 
     protected int getEmergencyTextColor(Context context) {
         return context.getResources().getColor(

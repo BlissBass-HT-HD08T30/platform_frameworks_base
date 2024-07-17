@@ -5470,6 +5470,13 @@ public final class Settings {
         public static final String POWERMENU_SLEEP = "powermenu_sleep";
 
         /**
+         * Whether to display the testing option in the power menu
+         *
+         * @hide
+         */
+        public static final String POWERMENU_TESTING = "powermenu_testing";        
+
+        /**
          * Whether to hide navbar pill and keyboard space.
          * Default 0.
          * @hide
