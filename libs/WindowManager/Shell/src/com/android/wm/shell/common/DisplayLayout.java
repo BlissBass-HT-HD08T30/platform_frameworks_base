@@ -512,7 +512,12 @@ public class DisplayLayout {
     }
 
     static boolean hasStatusBar(int displayId) {
-        return displayId == Display.DEFAULT_DISPLAY;
+        // Allow a system property to override this. Used for kiosk mode.
+        if (SystemProperties.getBoolean("persist.bliss.disable_statusbar", false)) {
+            return false;
+        } else {
+            return displayId == Display.DEFAULT_DISPLAY;
+        }
     }
 
     /** Retrieve navigation bar position from resources based on rotation and size. */
