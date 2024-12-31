@@ -515,6 +515,10 @@ public class DisplayLayout {
         // Allow a system property to override this. Used for kiosk mode.
         if (SystemProperties.getBoolean("persist.bliss.disable_statusbar", false)) {
             return false;
+        } else if (displayId == Display.TYPE_EXTERNAL && SystemProperties.getBoolean("persist.bliss.enable_external_statusbar", false)) {
+            return true;
+        } else if (displayId == Display.TYPE_VIRTUAL && SystemProperties.getBoolean("persist.bliss.enable_virtual_statusbar", false)) {
+            return true;
         } else {
             return displayId == Display.DEFAULT_DISPLAY;
         }
