@@ -242,6 +242,9 @@ public class DisplayPolicy {
 
     private boolean mNavButtonForcedVisible;
 
+    // Check the system property to disable the status bar by default
+    private boolean disableStatusBarByDefault = SystemProperties.getBoolean("persist.bliss.disable_statusbar", false);
+
     StatusBarManagerInternal getStatusBarManagerInternal() {
         synchronized (mServiceAcquireLock) {
             if (mStatusBarManagerInternal == null) {
@@ -2767,6 +2770,9 @@ public class DisplayPolicy {
 
         if (controlTarget == null || controlTarget == getNotificationShade()) {
             // No transient mode on lockscreen (in notification shade window).
+            return;
+        }
+        if (disableStatusBarByDefault && swipeTarget == mStatusBar) {
             return;
         }
 
