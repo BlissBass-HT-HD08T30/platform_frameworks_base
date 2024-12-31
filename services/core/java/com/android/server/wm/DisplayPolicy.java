@@ -244,6 +244,8 @@ public class DisplayPolicy {
 
     // Check the system property to disable the status bar by default
     private boolean disableStatusBarByDefault = SystemProperties.getBoolean("persist.bliss.disable_statusbar", false);
+    // Check the system property to disable the navigation bar by default
+    private boolean disableNavbarByDefault = SystemProperties.getBoolean("persist.bliss.disable_navigation_bar", false);
 
     StatusBarManagerInternal getStatusBarManagerInternal() {
         synchronized (mServiceAcquireLock) {
@@ -2773,6 +2775,10 @@ public class DisplayPolicy {
             return;
         }
         if (disableStatusBarByDefault && swipeTarget == mStatusBar) {
+            return;
+        }
+
+        if (disableNavbarByDefault && swipeTarget == mNavigationBar) {
             return;
         }
 
